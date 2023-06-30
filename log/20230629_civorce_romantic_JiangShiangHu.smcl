@@ -1,0 +1,947 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}/Users/jiangshianghu/Desktop/labor_econ/log/20230629_civorce_romantic_JiangShiangHu.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}29 Jun 2023, 16:14:40
+{txt}
+{com}. ***Read Data (2001) Control Variables***
+. 
+. use "$path/raw data/cp2001/w1_j_s_lv7.0.dta"
+{txt}
+{com}. rename w1admarea city
+{res}{txt}
+{com}. rename w1sx06    sex_charact
+{res}{txt}
+{com}. recode w1s502    (2 = 1) (1 = 0), gen(female)
+{txt}(20051 differences between w1s502 and female)
+
+{com}. global score     w1nright w1cfree w1math
+{txt}
+{com}. global sibilings w1s203 w1s204 w1s205 w1s206
+{txt}
+{com}. 
+. * merge the dataset with 2001 parent survey
+. merge m:m stud_id using  "$path/raw data/cp2001_parent/w1_j_p_lv7.0.dta"
+{res}{txt}(label w1log1 already defined)
+(label w1log2 already defined)
+(label w1log3 already defined)
+(label w1log4 already defined)
+(label w1log5 already defined)
+(label w1log6 already defined)
+
+{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}             276
+{txt}{col 9}from master{col 30}{res}             276{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               0{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}          19,779{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. keep if _merge == 3
+{txt}(276 observations deleted)
+
+{com}. drop _merge
+{txt}
+{com}. 
+. 
+. * generate variables of parent's education level
+. gen father_edu = w1p104 if w1p101==1 & w1p102==1 // parent and male
+{txt}(12,861 missing values generated)
+
+{com}. gen mother_edu = w1p104 if w1p101==1 & w1p102==2 // parent and female
+{txt}(7,674 missing values generated)
+
+{com}. replace father_edu = w1p121 if w1p102==2 // spouse education repoted by mother
+{txt}(12,554 real changes made)
+
+{com}. replace mother_edu = w1p121 if w1p102==1 // spouse education repoted by fatehr
+{txt}(7,189 real changes made)
+
+{com}. replace father_edu = . if father_edu > 6 // not valid 
+{txt}(732 real changes made, 732 to missing)
+
+{com}. replace mother_edu = . if mother_edu > 6 // not valid
+{txt}(431 real changes made, 431 to missing)
+
+{com}. 
+. label define edu 1 "國中" 2 "高中" 3 "專科" 4 "大學" 5 "研究所" 6 "其他"
+{txt}
+{com}. label values father_edu edu
+{txt}
+{com}. label values mother_edu edu
+{txt}
+{com}. 
+. * generate variable for family income
+. gen family_income = w1p515 if w1p515 < 7
+{txt}(109 missing values generated)
+
+{com}. 
+. * generate variables of having confict with child
+. global child_conflict w1p3062 w1p3063 w1p3064 w1p3065 w1p3066 
+{txt}
+{com}. 
+. foreach v in $child_conflict $sibilings{c -(}
+{txt}  2{com}. replace `v' = . if `v' >96 // no response
+{txt}  3{com}. tab `v'
+{txt}  4{com}. {c )-}
+{txt}(47 real changes made, 47 to missing)
+
+   w1:國小/ {c |}
+    衝突/學 {c |}
+         業 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       不會 {c |}{res}     10,890       55.19       55.19
+{txt}         會 {c |}{res}      8,842       44.81      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,732      100.00
+{txt}(47 real changes made, 47 to missing)
+
+   w1:國小/ {c |}
+    衝突/交 {c |}
+         友 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       不會 {c |}{res}     17,508       88.73       88.73
+{txt}         會 {c |}{res}      2,224       11.27      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,732      100.00
+{txt}(47 real changes made, 47 to missing)
+
+   w1:國小/ {c |}
+    衝突/生 {c |}
+     活作息 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       不會 {c |}{res}     12,289       62.28       62.28
+{txt}         會 {c |}{res}      7,443       37.72      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,732      100.00
+{txt}(47 real changes made, 47 to missing)
+
+   w1:國小/ {c |}
+    衝突/金 {c |}
+         錢 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       不會 {c |}{res}     18,392       93.21       93.21
+{txt}         會 {c |}{res}      1,340        6.79      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,732      100.00
+{txt}(47 real changes made, 47 to missing)
+
+   w1:國小/ {c |}
+    衝突/品 {c |}
+         行 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       不會 {c |}{res}     17,296       87.65       87.65
+{txt}         會 {c |}{res}      2,436       12.35      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,732      100.00
+{txt}(197 real changes made, 197 to missing)
+
+    w1:幾位 {c |}
+       哥哥 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+        0位 {c |}{res}     12,886       65.81       65.81
+{txt}        1位 {c |}{res}      5,463       27.90       93.70
+{txt}        2位 {c |}{res}        950        4.85       98.55
+{txt}        3位 {c |}{res}        160        0.82       99.37
+{txt}4位以上(含) {c |}{res}        123        0.63      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,582      100.00
+{txt}(190 real changes made, 190 to missing)
+
+    w1:幾位 {c |}
+       弟弟 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+        0位 {c |}{res}     12,352       63.06       63.06
+{txt}        1位 {c |}{res}      6,109       31.19       94.24
+{txt}        2位 {c |}{res}        928        4.74       98.98
+{txt}        3位 {c |}{res}        125        0.64       99.62
+{txt}4位以上(含) {c |}{res}         75        0.38      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,589      100.00
+{txt}(187 real changes made, 187 to missing)
+
+    w1:幾位 {c |}
+       姊姊 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+        0位 {c |}{res}     12,362       63.10       63.10
+{txt}        1位 {c |}{res}      5,095       26.01       89.10
+{txt}        2位 {c |}{res}      1,508        7.70       96.80
+{txt}        3位 {c |}{res}        445        2.27       99.07
+{txt}4位以上(含) {c |}{res}        182        0.93      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,592      100.00
+{txt}(160 real changes made, 160 to missing)
+
+    w1:幾位 {c |}
+       妹妹 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+        0位 {c |}{res}     13,423       68.42       68.42
+{txt}        1位 {c |}{res}      4,921       25.08       93.50
+{txt}        2位 {c |}{res}      1,022        5.21       98.71
+{txt}        3位 {c |}{res}        171        0.87       99.58
+{txt}4位以上(含) {c |}{res}         82        0.42      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     19,619      100.00
+{txt}
+{com}. 
+. 
+. ***Read Data (2007) Treatment Variables***
+. merge m:m stud_id using "$path/raw data/cp2007/STATA/w4_sf_s_cp_lv7.0.dta"
+{res}{txt}(label w1s502 already defined)
+
+{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}          15,664
+{txt}{col 9}from master{col 30}{res}          15,640{txt}  (_merge==1)
+{col 9}from using{col 30}{res}              24{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}           4,139{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. keep if _merge == 3
+{txt}(15,664 observations deleted)
+
+{com}. drop _merge
+{txt}
+{com}. 
+. * variables of interest
+. global intact_family w4s2061 w4s2071 // 高中前父母無分居或離婚；高中前父母沒有去世
+{txt}
+{com}. 
+. foreach v in $intact_family {c -(}
+{txt}  2{com}. replace `v' = . if `v' == 99 // no response
+{txt}  3{com}. tab `v'
+{txt}  4{com}. {c )-}
+{txt}(38 real changes made, 38 to missing)
+
+   w4:父母/ {c |}
+    分居/離 {c |}
+    婚/未發 {c |}
+         生 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       沒有 {c |}{res}        497       12.12       12.12
+{txt}         有 {c |}{res}      3,604       87.88      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,101      100.00
+{txt}(39 real changes made, 39 to missing)
+
+   w4:父母/ {c |}
+    去世/未 {c |}
+       發生 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       沒有 {c |}{res}        224        5.46        5.46
+{txt}         有 {c |}{res}      3,876       94.54      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,100      100.00
+{txt}
+{com}. 
+. * generate variables of single family
+. gen parent_div_sep = (w4s2061==0) if w4s2061 != .
+{txt}(38 missing values generated)
+
+{com}. gen parent_death   = (w4s2071==0) if w4s2071 != .
+{txt}(39 missing values generated)
+
+{com}. 
+. * label the variables of interest
+. label define sep_div 0 "無父母離婚分居" 1 "有父母離婚分居" 
+{txt}
+{com}. label values parent_div_sep sep_div
+{txt}
+{com}. label define death 0 "無父母去世" 1 "有父母去世" 
+{txt}
+{com}. label values parent_death death
+{txt}
+{com}. 
+. * examine the variables of interest
+. global single_family parent_div_sep parent_death 
+{txt}
+{com}. foreach v in $single_family {c -(}
+{txt}  2{com}. tab `v'
+{txt}  3{com}. {c )-}
+
+{txt}parent_div_sep {c |}      Freq.     Percent        Cum.
+{hline 15}{c +}{hline 35}
+無父母離婚分居 {c |}{res}      3,604       87.88       87.88
+{txt}有父母離婚分居 {c |}{res}        497       12.12      100.00
+{txt}{hline 15}{c +}{hline 35}
+         Total {c |}{res}      4,101      100.00
+
+{txt}parent_deat {c |}
+          h {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 無父母去世 {c |}{res}      3,876       94.54       94.54
+{txt} 有父母去世 {c |}{res}        224        5.46      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,100      100.00
+{txt}
+{com}. 
+. * consider only single family with parental divorce (exclude death)
+. drop if parent_death == 1
+{txt}(224 observations deleted)
+
+{com}. drop if parent_div_sep == .
+{txt}(38 observations deleted)
+
+{com}. 
+. 
+. 
+. ***Read Data (2014) Outcome Variables***
+. merge m:m stud_id using "$path/raw data/cp2014/cpn2014.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}           4,024
+{txt}{col 9}from master{col 30}{res}           1,365{txt}  (_merge==1)
+{col 9}from using{col 30}{res}           2,659{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}           2,512{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. keep if _merge==3
+{txt}(4,024 observations deleted)
+
+{com}. drop _merge
+{txt}
+{com}. 
+. 
+. global romantic_relation_2014 cpn14c1a cpn14c1b cpn14c2a cpn14c2b cpn14c4
+{txt}
+{com}. global marriage_attitude_2014 cpn14c3_1 cpn14c3_2 cpn14c3_3 cpn14c3_4 cpn14c3_5 cpn14c3_6 
+{txt}
+{com}. global negative_symptom_1     cpn14f4_1 cpn14f4_2 cpn14f4_3 cpn14f4_4 cpn14f4_5 cpn14f4_6 
+{txt}
+{com}. global negative_symptom_2     cpn14f4_7 cpn14f4_8 cpn14f4_9 cpn14f4_10 cpn14f4_11 
+{txt}
+{com}. 
+. 
+. * generate variables of romantic relationship
+. foreach v in $romantic_relation_2014 {c -(}
+{txt}  2{com}. replace `v' = . if `v' > 89 // no response
+{txt}  3{com}. {c )-}
+{txt}(1 real change made, 1 to missing)
+(69 real changes made, 69 to missing)
+(4 real changes made, 4 to missing)
+(4 real changes made, 4 to missing)
+(10 real changes made, 10 to missing)
+
+{com}. 
+. gen married_2014 = (cpn14c1a > 1) // 非未婚：含初婚或已離婚
+{txt}
+{com}. gen couple_2014  = (cpn14c1b < 3) // 非單身：含同居或非同居伴侶
+{txt}
+{com}. label define married 0 "未婚" 1 "初婚或已離婚" 
+{txt}
+{com}. label values married_2014 married
+{txt}
+{com}. label define couple  0 "單身" 1 "有同居或非同居伴侶" 
+{txt}
+{com}. label values couple_2014 couple
+{txt}
+{com}. 
+. rename cpn14c2a want_marriage // 現在是否想結婚
+{res}{txt}
+{com}. rename cpn14c2b meet_partner // 常不常有機會遇見適合交往的對象
+{res}{txt}
+{com}. rename cpn14c4  num_of_lovers // 高一以來有交過多少男女朋友
+{res}{txt}
+{com}. 
+. * change (1 agree - 5 disagree) to (5 agree - 1 disagree)
+. label define agreement 5 "非常同意" 4 "同意" 3 "無意見" 2 "不同意" 1 "非常不同意"
+{txt}
+{com}. foreach v in $marriage_attitude_2014 want_marriage {c -(}
+{txt}  2{com}. replace `v' = . if `v' > 89 // no response
+{txt}  3{com}. recode `v' (1 = 5) (2 = 4) (3 = 3) (4 = 2) (5 = 1)
+{txt}  4{com}. label values `v' agreement
+{txt}  5{com}. {c )-}
+{txt}(0 real changes made)
+(cpn14c3_1: 1987 changes made)
+(1 real change made, 1 to missing)
+(cpn14c3_2: 1923 changes made)
+(1 real change made, 1 to missing)
+(cpn14c3_3: 2080 changes made)
+(2 real changes made, 2 to missing)
+(cpn14c3_4: 1860 changes made)
+(2 real changes made, 2 to missing)
+(cpn14c3_5: 1904 changes made)
+(3 real changes made, 3 to missing)
+(cpn14c3_6: 1987 changes made)
+(0 real changes made)
+(want_marriage: 1825 changes made)
+
+{com}. 
+. * change (1 always - 4 never) to (4 always - 1 never)
+. label define frequency 4 "經常" 3 "有時候" 2 "偶爾" 1 "幾乎沒有" 
+{txt}
+{com}. foreach v in $negative_symptom_1 $negative_symptom_2 meet_partner {c -(}
+{txt}  2{com}. replace `v' = . if `v' > 89 // no response
+{txt}  3{com}. recode `v' (1 = 4) (2 = 3) (3 = 2) (4 = 1)
+{txt}  4{com}. label values `v' frequency
+{txt}  5{com}. {c )-}
+{txt}(0 real changes made)
+(cpn14f4_1: 2512 changes made)
+(0 real changes made)
+(cpn14f4_2: 2512 changes made)
+(0 real changes made)
+(cpn14f4_3: 2512 changes made)
+(0 real changes made)
+(cpn14f4_4: 2512 changes made)
+(0 real changes made)
+(cpn14f4_5: 2512 changes made)
+(0 real changes made)
+(cpn14f4_6: 2512 changes made)
+(0 real changes made)
+(cpn14f4_7: 2512 changes made)
+(0 real changes made)
+(cpn14f4_8: 2512 changes made)
+(0 real changes made)
+(cpn14f4_9: 2512 changes made)
+(0 real changes made)
+(cpn14f4_10: 2512 changes made)
+(0 real changes made)
+(cpn14f4_11: 2512 changes made)
+(0 real changes made)
+(meet_partner: 2508 changes made)
+
+{com}. 
+. *** Summary Statistics ***
+. 
+. global outcome_2014 married_2014 couple_2014 want_marriage meet_partner num_of_lovers
+{txt}
+{com}. sum parent_div_sep $outcome_2014 $marriage_attitude_2014 $negative_symptom_1 $negative_symptom_2
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+parent_div~p {c |}{res}      2,512    .1050955    .3067375          0          1
+{txt}married_2014 {c |}{res}      2,512    .0294586    .1691218          0          1
+{txt}{space 1}couple_2014 {c |}{res}      2,512    .4351115    .4958703          0          1
+{txt}want_marri~e {c |}{res}      2,508    2.896332    .9907925          1          5
+{txt}meet_partner {c |}{res}      2,508    1.937002    .8402628          1          4
+{txt}{hline 13}{c +}{hline 57}
+num_of_lov~s {c |}{res}      2,502    1.667466    1.466313          0         15
+{txt}{space 3}cpn14c3_1 {c |}{res}      2,512    3.218153    1.116555          1          5
+{txt}{space 3}cpn14c3_2 {c |}{res}      2,511    3.074074    1.077518          1          5
+{txt}{space 3}cpn14c3_3 {c |}{res}      2,511    2.528873    1.090279          1          5
+{txt}{space 3}cpn14c3_4 {c |}{res}      2,510    2.801195    .9949647          1          5
+{txt}{hline 13}{c +}{hline 57}
+{space 3}cpn14c3_5 {c |}{res}      2,510    3.489641    1.103859          1          5
+{txt}{space 3}cpn14c3_6 {c |}{res}      2,509    3.589079    1.046247          1          5
+{txt}{space 3}cpn14f4_1 {c |}{res}      2,512    1.563694    .7911822          1          4
+{txt}{space 3}cpn14f4_2 {c |}{res}      2,512    1.576035    .7422713          1          4
+{txt}{space 3}cpn14f4_3 {c |}{res}      2,512    1.755573    .8888714          1          4
+{txt}{hline 13}{c +}{hline 57}
+{space 3}cpn14f4_4 {c |}{res}      2,512    1.831608    .7681872          1          4
+{txt}{space 3}cpn14f4_5 {c |}{res}      2,512    1.243232    .5466618          1          4
+{txt}{space 3}cpn14f4_6 {c |}{res}      2,512    1.487261    .6940586          1          4
+{txt}{space 3}cpn14f4_7 {c |}{res}      2,512     1.33121    .5941548          1          4
+{txt}{space 3}cpn14f4_8 {c |}{res}      2,512    1.394108    .6366707          1          4
+{txt}{hline 13}{c +}{hline 57}
+{space 3}cpn14f4_9 {c |}{res}      2,512    1.820064    .7868566          1          4
+{txt}{space 2}cpn14f4_10 {c |}{res}      2,512      1.4375    .7089875          1          4
+{txt}{space 2}cpn14f4_11 {c |}{res}      2,512     1.05215    .2722887          1          4
+{txt}
+{com}. 
+. tab parent_div_sep
+
+{txt}parent_div_sep {c |}      Freq.     Percent        Cum.
+{hline 15}{c +}{hline 35}
+無父母離婚分居 {c |}{res}      2,248       89.49       89.49
+{txt}有父母離婚分居 {c |}{res}        264       10.51      100.00
+{txt}{hline 15}{c +}{hline 35}
+         Total {c |}{res}      2,512      100.00
+{txt}
+{com}. foreach v in $outcome_2014  {c -(}
+{txt}  2{com}. tab `v'
+{txt}  3{com}. {c )-}
+
+{txt}married_2014 {c |}      Freq.     Percent        Cum.
+{hline 13}{c +}{hline 35}
+        未婚 {c |}{res}      2,438       97.05       97.05
+{txt}初婚或已離婚 {c |}{res}         74        2.95      100.00
+{txt}{hline 13}{c +}{hline 35}
+       Total {c |}{res}      2,512      100.00
+
+       {txt}couple_2014 {c |}      Freq.     Percent        Cum.
+{hline 19}{c +}{hline 35}
+              單身 {c |}{res}      1,419       56.49       56.49
+{txt}有同居或非同居伴侶 {c |}{res}      1,093       43.51      100.00
+{txt}{hline 19}{c +}{hline 35}
+             Total {c |}{res}      2,512      100.00
+
+    {txt}現在/結 {c |}
+     婚前， {c |}
+     想不想 {c |}
+       結婚 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        111        4.43        4.43
+{txt}     不同意 {c |}{res}        931       37.12       41.55
+{txt}     無意見 {c |}{res}        683       27.23       68.78
+{txt}       同意 {c |}{res}        673       26.83       95.61
+{txt}   非常同意 {c |}{res}        110        4.39      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,508      100.00
+
+    {txt}現在/結 {c |}
+     婚前， {c |}
+     常不常 {c |}
+     有機會 {c |}
+     遇到適 {c |}
+     合交往 {c |}
+     的對象 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}        860       34.29       34.29
+{txt}       偶爾 {c |}{res}      1,055       42.07       76.36
+{txt}     有時候 {c |}{res}        484       19.30       95.65
+{txt}       經常 {c |}{res}        109        4.35      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,508      100.00
+
+      {txt}高一以來 {c |}
+      ，總共交 {c |}
+      過幾位男 {c |}
+      女朋友？ {c |}      Freq.     Percent        Cum.
+{hline 15}{c +}{hline 35}
+             0 {c |}{res}        582       23.26       23.26
+{txt}             1 {c |}{res}        705       28.18       51.44
+{txt}             2 {c |}{res}        607       24.26       75.70
+{txt}             3 {c |}{res}        366       14.63       90.33
+{txt}             4 {c |}{res}        133        5.32       95.64
+{txt}             5 {c |}{res}         69        2.76       98.40
+{txt}             6 {c |}{res}         24        0.96       99.36
+{txt}             7 {c |}{res}          8        0.32       99.68
+{txt}             8 {c |}{res}          3        0.12       99.80
+{txt}             9 {c |}{res}          1        0.04       99.84
+{txt}            10 {c |}{res}          3        0.12       99.96
+{txt}            15 {c |}{res}          1        0.04      100.00
+{txt}{hline 15}{c +}{hline 35}
+         Total {c |}{res}      2,502      100.00
+{txt}
+{com}. foreach v in $marriage_attitude_2014  {c -(}
+{txt}  2{com}. tab `v'
+{txt}  3{com}. {c )-}
+
+     {txt}婚姻態 {c |}
+    度-結婚 {c |}
+     後不一 {c |}
+     定要有 {c |}
+       小孩 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        129        5.14        5.14
+{txt}     不同意 {c |}{res}        672       26.75       31.89
+{txt}     無意見 {c |}{res}        525       20.90       52.79
+{txt}       同意 {c |}{res}        894       35.59       88.38
+{txt}   非常同意 {c |}{res}        292       11.62      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}婚姻態 {c |}
+    度-情侶 {c |}
+     住在一 {c |}
+     起，即 {c |}
+     使沒有 {c |}
+     結婚的 {c |}
+     打算也 {c |}
+     沒什麼 {c |}
+       關係 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        156        6.21        6.21
+{txt}     不同意 {c |}{res}        724       28.83       35.05
+{txt}     無意見 {c |}{res}        588       23.42       58.46
+{txt}       同意 {c |}{res}        864       34.41       92.87
+{txt}   非常同意 {c |}{res}        179        7.13      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,511      100.00
+
+     {txt}婚姻態 {c |}
+    度-即使 {c |}
+     沒有結 {c |}
+     婚，還 {c |}
+     是可以 {c |}
+     有小孩 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        398       15.85       15.85
+{txt}     不同意 {c |}{res}      1,079       42.97       58.82
+{txt}     無意見 {c |}{res}        431       17.16       75.99
+{txt}       同意 {c |}{res}        514       20.47       96.46
+{txt}   非常同意 {c |}{res}         89        3.54      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,511      100.00
+
+     {txt}婚姻態 {c |}
+    度-現在 {c |}
+     只有少 {c |}
+     數的婚 {c |}
+     姻是幸 {c |}
+       福的 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        123        4.90        4.90
+{txt}     不同意 {c |}{res}      1,054       41.99       46.89
+{txt}     無意見 {c |}{res}        650       25.90       72.79
+{txt}       同意 {c |}{res}        565       22.51       95.30
+{txt}   非常同意 {c |}{res}        118        4.70      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,510      100.00
+
+     {txt}婚姻態 {c |}
+    度-同性 {c |}
+     伴侶可 {c |}
+     以結婚 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        185        7.37        7.37
+{txt}     不同意 {c |}{res}        260       10.36       17.73
+{txt}     無意見 {c |}{res}        606       24.14       41.87
+{txt}       同意 {c |}{res}      1,059       42.19       84.06
+{txt}   非常同意 {c |}{res}        400       15.94      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,510      100.00
+
+     {txt}婚姻態 {c |}
+    度-同性 {c |}
+     伴侶也 {c |}
+     適合養 {c |}
+     育小孩 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+ 非常不同意 {c |}{res}        141        5.62        5.62
+{txt}     不同意 {c |}{res}        244        9.72       15.34
+{txt}     無意見 {c |}{res}        522       20.81       36.15
+{txt}       同意 {c |}{res}      1,200       47.83       83.98
+{txt}   非常同意 {c |}{res}        402       16.02      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,509      100.00
+{txt}
+{com}. foreach v in $negative_symptom_1 $negative_symptom_2  {c -(}
+{txt}  2{com}. tab `v'
+{txt}  3{com}. {c )-}
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     不太想 {c |}
+     吃東西 {c |}
+     ，胃口 {c |}
+       很差 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,518       60.43       60.43
+{txt}       偶爾 {c |}{res}        627       24.96       85.39
+{txt}     有時候 {c |}{res}        312       12.42       97.81
+{txt}       經常 {c |}{res}         55        2.19      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得做 {c |}
+     每一件 {c |}
+     事情都 {c |}
+     很吃力 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,402       55.81       55.81
+{txt}       偶爾 {c |}{res}        821       32.68       88.50
+{txt}     有時候 {c |}{res}        241        9.59       98.09
+{txt}       經常 {c |}{res}         48        1.91      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     睡不好 {c |}
+         覺 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,227       48.85       48.85
+{txt}       偶爾 {c |}{res}        819       32.60       81.45
+{txt}     有時候 {c |}{res}        319       12.70       94.15
+{txt}       經常 {c |}{res}        147        5.85      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得心 {c |}
+     情很不 {c |}
+         好 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}        915       36.43       36.43
+{txt}       偶爾 {c |}{res}      1,178       46.89       83.32
+{txt}     有時候 {c |}{res}        346       13.77       97.09
+{txt}       經常 {c |}{res}         73        2.91      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     想要大 {c |}
+     叫、摔 {c |}
+     東西、 {c |}
+     吵架或 {c |}
+       打人 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      2,026       80.65       80.65
+{txt}       偶爾 {c |}{res}        380       15.13       95.78
+{txt}     有時候 {c |}{res}         87        3.46       99.24
+{txt}       經常 {c |}{res}         19        0.76      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得很 {c |}
+       寂寞 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,546       61.54       61.54
+{txt}       偶爾 {c |}{res}        741       29.50       91.04
+{txt}     有時候 {c |}{res}        192        7.64       98.69
+{txt}       經常 {c |}{res}         33        1.31      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得身 {c |}
+     邊的人 {c |}
+     不友善 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,826       72.69       72.69
+{txt}       偶爾 {c |}{res}        559       22.25       94.94
+{txt}     有時候 {c |}{res}        108        4.30       99.24
+{txt}       經常 {c |}{res}         19        0.76      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得很 {c |}
+       傷心 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,709       68.03       68.03
+{txt}       偶爾 {c |}{res}        638       25.40       93.43
+{txt}     有時候 {c |}{res}        143        5.69       99.12
+{txt}       經常 {c |}{res}         22        0.88      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     提不起 {c |}
+     勁來做 {c |}
+         事 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}        971       38.65       38.65
+{txt}       偶爾 {c |}{res}      1,095       43.59       82.25
+{txt}     有時候 {c |}{res}        373       14.85       97.09
+{txt}       經常 {c |}{res}         73        2.91      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得不 {c |}
+     能信任 {c |}
+       別人 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      1,689       67.24       67.24
+{txt}       偶爾 {c |}{res}        593       23.61       90.84
+{txt}     有時候 {c |}{res}        184        7.32       98.17
+{txt}       經常 {c |}{res}         46        1.83      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+
+     {txt}過去一 {c |}
+    個禮拜- {c |}
+     覺得不 {c |}
+     想活了 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+   幾乎沒有 {c |}{res}      2,408       95.86       95.86
+{txt}       偶爾 {c |}{res}         81        3.22       99.08
+{txt}     有時候 {c |}{res}         19        0.76       99.84
+{txt}       經常 {c |}{res}          4        0.16      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,512      100.00
+{txt}
+{com}. 
+. bysort parent_div_sep: sum $outcome_2014
+
+{txt}{hline}
+-> parent_div_sep = 無父母離婚分居
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+married_2014 {c |}{res}      2,248    .0284698    .1663476          0          1
+{txt}{space 1}couple_2014 {c |}{res}      2,248    .4283808    .4949542          0          1
+{txt}want_marri~e {c |}{res}      2,244    2.895276    .9863965          1          5
+{txt}meet_partner {c |}{res}      2,244    1.925134    .8338103          1          4
+{txt}num_of_lov~s {c |}{res}      2,240    1.621875    1.443398          0         15
+
+{txt}{hline}
+-> parent_div_sep = 有父母離婚分居
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+married_2014 {c |}{res}        264    .0378788    .1912657          0          1
+{txt}{space 1}couple_2014 {c |}{res}        264    .4924242    .5008922          0          1
+{txt}want_marri~e {c |}{res}        264    2.905303    1.029291          1          5
+{txt}meet_partner {c |}{res}        264    2.037879    .8885011          1          4
+{txt}num_of_lov~s {c |}{res}        262    2.057252    1.599978          0         10
+
+{txt}
+{com}. foreach v in $outcome_2014  {c -(}
+{txt}  2{com}. ttest `v', by(parent_div_sep)
+{txt}  3{com}. {c )-}
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+ 無父~居 {c |}{res}{col 12}  2,248{col 22} .0284698{col 34} .0035085{col 46} .1663476{col 58} .0215896{col 70} .0353499
+ {txt}有父~居 {c |}{res}{col 12}    264{col 22} .0378788{col 34} .0117716{col 46} .1912657{col 58} .0147002{col 70} .0610573
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,512{col 22} .0294586{col 34} .0033743{col 46} .1691218{col 58} .0228418{col 70} .0360754
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22} -.009409{col 34} .0110035{col 58} -.030986{col 70} .0121679
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}無父母離婚分居{txt}) - mean({res}有父母離婚分居{txt})            t = {res} -0.8551
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2510
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.1963         {txt}Pr(|T| > |t|) = {res}0.3926          {txt}Pr(T > t) = {res}0.8037
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+ 無父~居 {c |}{res}{col 12}  2,248{col 22} .4283808{col 34} .0104392{col 46} .4949542{col 58} .4079093{col 70} .4488522
+ {txt}有父~居 {c |}{res}{col 12}    264{col 22} .4924242{col 34} .0308278{col 46} .5008922{col 58} .4317236{col 70} .5531249
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,512{col 22} .4351115{col 34} .0098937{col 46} .4958703{col 58} .4157108{col 70} .4545121
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0640435{col 34} .0322421{col 58}-.1272673{col 70}-.0008196
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}無父母離婚分居{txt}) - mean({res}有父母離婚分居{txt})            t = {res} -1.9863
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2510
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0236         {txt}Pr(|T| > |t|) = {res}0.0471          {txt}Pr(T > t) = {res}0.9764
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+ 無父~居 {c |}{res}{col 12}  2,244{col 22} 2.895276{col 34} .0208228{col 46} .9863965{col 58} 2.854442{col 70}  2.93611
+ {txt}有父~居 {c |}{res}{col 12}    264{col 22} 2.905303{col 34} .0633485{col 46} 1.029291{col 58} 2.780568{col 70} 3.030038
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,508{col 22} 2.896332{col 34} .0197842{col 46} .9907925{col 58} 2.857537{col 70} 2.935127
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0100267{col 34} .0644789{col 58}-.1364641{col 70} .1164107
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}無父母離婚分居{txt}) - mean({res}有父母離婚分居{txt})            t = {res} -0.1555
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2506
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.4382         {txt}Pr(|T| > |t|) = {res}0.8764          {txt}Pr(T > t) = {res}0.5618
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+ 無父~居 {c |}{res}{col 12}  2,244{col 22} 1.925134{col 34} .0176017{col 46} .8338103{col 58} 1.890616{col 70} 1.959651
+ {txt}有父~居 {c |}{res}{col 12}    264{col 22} 2.037879{col 34} .0546835{col 46} .8885011{col 58} 1.930206{col 70} 2.145552
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,508{col 22} 1.937002{col 34} .0167784{col 46} .8402628{col 58} 1.904101{col 70} 1.969903
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.1127451{col 34} .0546366{col 58}-.2198826{col 70}-.0056076
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}無父母離婚分居{txt}) - mean({res}有父母離婚分居{txt})            t = {res} -2.0635
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2506
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0196         {txt}Pr(|T| > |t|) = {res}0.0392          {txt}Pr(T > t) = {res}0.9804
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+ 無父~居 {c |}{res}{col 12}  2,240{col 22} 1.621875{col 34} .0304974{col 46} 1.443398{col 58} 1.562069{col 70} 1.681681
+ {txt}有父~居 {c |}{res}{col 12}    262{col 22} 2.057252{col 34} .0988469{col 46} 1.599978{col 58} 1.862613{col 70} 2.251891
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,502{col 22} 1.667466{col 34} .0293145{col 46} 1.466313{col 58} 1.609983{col 70} 1.724949
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.4353769{col 34} .0953629{col 58}-.6223753{col 70}-.2483785
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}無父母離婚分居{txt}) - mean({res}有父母離婚分居{txt})            t = {res} -4.5655
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2500
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0000         {txt}Pr(|T| > |t|) = {res}0.0000          {txt}Pr(T > t) = {res}1.0000
+{txt}
+{com}. 
+. 
+. *** Regressions ***
+. 
+. 
+. foreach v in $outcome_2014 {c -(}
+{txt}  2{com}. quietly reg `v' parent_div_sep female i.family_income i.father_edu i.mother_edu i.city i.sex_charact $score $sibilings $child_conflict, r
+{txt}  3{com}. est store reg_`v'
+{txt}  4{com}. {c )-}
+{txt}
+{com}. 
+. outreg2 [reg_married_2014 reg_couple_2014 reg_want_marriage reg_meet_partner reg_num_of_lovers] using "$path/output/reg_romantic_2014.tex" , replace ///
+>  dec(3) alpha(0.001, 0.01, 0.05, 0.1) symbol(***, **, *, †) ///
+>  title("Parental Divore on Romantic Relationship") ctitle("`v'")
+{txt}{stata `"shellout using `"/Users/jiangshianghu/Desktop/labor_econ/output/reg_romantic_2014.tex"'"':/Users/jiangshianghu/Desktop/labor_econ/output/reg_romantic_2014.tex}
+{browse `"/Users/jiangshianghu/Desktop/LTPR month analysis/input"' :dir}{com} : {txt}{stata `"seeout using "/Users/jiangshianghu/Desktop/labor_econ/output/reg_romantic_2014.txt""':seeout}
+
+{com}. 
+. foreach v in $marriage_attitude_2014 {c -(}
+{txt}  2{com}. quietly reg `v' parent_div_sep female i.family_income i.father_edu i.mother_edu i.city i.sex_charact $score $sibilings $child_conflict, r
+{txt}  3{com}. est store reg_`v'
+{txt}  4{com}. {c )-}
+{txt}
+{com}. 
+. outreg2 [reg_cpn14c3_1 reg_cpn14c3_2 reg_cpn14c3_3 reg_cpn14c3_4 reg_cpn14c3_5 reg_cpn14c3_6] using "$path/output/reg_attitude.tex" , replace ///
+>  dec(3) alpha(0.001, 0.01, 0.05, 0.1) symbol(***, **, *, †) ///
+>  title("Parental Divore on Marriage Attitude") ctitle("Agreement")
+{txt}{stata `"shellout using `"/Users/jiangshianghu/Desktop/labor_econ/output/reg_attitude.tex"'"':/Users/jiangshianghu/Desktop/labor_econ/output/reg_attitude.tex}
+{browse `"/Users/jiangshianghu/Desktop/LTPR month analysis/input"' :dir}{com} : {txt}{stata `"seeout using "/Users/jiangshianghu/Desktop/labor_econ/output/reg_attitude.txt""':seeout}
+
+{com}.  
+. foreach v in $negative_symptom_1 {c -(}
+{txt}  2{com}. quietly reg `v' parent_div_sep female i.family_income i.father_edu i.mother_edu i.city i.sex_charact $score $sibilings $child_conflict, r
+{txt}  3{com}. est store reg_`v'
+{txt}  4{com}. {c )-}
+{txt}
+{com}. 
+. outreg2 [reg_cpn14f4_1 reg_cpn14f4_2 reg_cpn14f4_3 reg_cpn14f4_4 reg_cpn14f4_5 reg_cpn14f4_6] using "$path/output/reg_ngative_1.tex" , replace ///
+>  dec(3) alpha(0.001, 0.01, 0.05, 0.1) symbol(***, **, *, †) ///
+>  title("Parental Divore on Nagative Symptom") ctitle("Frequency")
+{txt}{stata `"shellout using `"/Users/jiangshianghu/Desktop/labor_econ/output/reg_ngative_1.tex"'"':/Users/jiangshianghu/Desktop/labor_econ/output/reg_ngative_1.tex}
+{browse `"/Users/jiangshianghu/Desktop/LTPR month analysis/input"' :dir}{com} : {txt}{stata `"seeout using "/Users/jiangshianghu/Desktop/labor_econ/output/reg_ngative_1.txt""':seeout}
+
+{com}.  
+. foreach v in $negative_symptom_2 {c -(}
+{txt}  2{com}. quietly reg `v' parent_div_sep female i.family_income i.father_edu i.mother_edu i.city i.sex_charact $score $sibilings $child_conflict, r
+{txt}  3{com}. est store reg_`v'
+{txt}  4{com}. {c )-}
+{txt}
+{com}. 
+. outreg2 [reg_cpn14f4_7 reg_cpn14f4_8 reg_cpn14f4_9 reg_cpn14f4_10 reg_cpn14f4_11] using "$path/output/reg_ngative_2.tex" , replace ///
+>  dec(3) alpha(0.001, 0.01, 0.05, 0.1) symbol(***, **, *, †) ///
+>  title("Parental Divore on Nagative Symptom") ctitle("Frequency")
+{txt}{stata `"shellout using `"/Users/jiangshianghu/Desktop/labor_econ/output/reg_ngative_2.tex"'"':/Users/jiangshianghu/Desktop/labor_econ/output/reg_ngative_2.tex}
+{browse `"/Users/jiangshianghu/Desktop/LTPR month analysis/input"' :dir}{com} : {txt}{stata `"seeout using "/Users/jiangshianghu/Desktop/labor_econ/output/reg_ngative_2.txt""':seeout}
+
+{com}. 
+. 
+. * extract the dataset
+. save "$path/input/all.dta", replace
+{txt}file /Users/jiangshianghu/Desktop/labor_econ/input/all.dta saved
+
+{com}. 
+. 
+. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}/Users/jiangshianghu/Desktop/labor_econ/log/20230629_civorce_romantic_JiangShiangHu.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}29 Jun 2023, 16:14:44
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
